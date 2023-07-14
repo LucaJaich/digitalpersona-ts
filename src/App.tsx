@@ -1,24 +1,36 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import { FingerprintReader, SampleFormat } from '@digitalpersona/devices';
+import { useEffect, useState } from 'react';
 
 function App() {
+  const reader: FingerprintReader = new FingerprintReader();
+  const [capture, setCapture] = useState(false);
+  const [sample, setSample] = useState('');
+
+  useEffect(() => {
+    if (!capture)
+      return;
+    console.log('hey');
+    reader.onDeviceConnected = (device) => console.log("Device connected", device.deviceId);
+    reader.onSamplesAcquired = async (samples) => {
+      console.log(samples);
+      let image: string = samples.samples[0] as unknown as string;
+      image = image.replace(/_/g, '/').replace(/-/g, '+');
+      setSample(image);
+  }
+
+    reader.startAcquisition(SampleFormat.PngImage, "79393E80-F896-A041-9CAD-FE9C993552F2")
+    .then((res) => {
+        console.log(res);
+    })
+    .catch((err) => console.log(err));
+
+  }, [capture]);
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <button onClick={() => setCapture(true)}>Capture</button>
+      <img src={`data:image/png;base64,${sample}`} alt="fingerprint" />
+      <p>hola</p>
     </div>
   );
 }
