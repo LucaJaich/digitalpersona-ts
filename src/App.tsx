@@ -1,4 +1,5 @@
 import { FingerprintReader, SampleFormat } from '@digitalpersona/devices';
+import axios from 'axios';
 import { useState } from 'react';
 
 function App() {
@@ -9,6 +10,9 @@ function App() {
     console.log(typeof samples.samples[0]);
     let image: string = samples.samples[0].toString();
     image = image.replace(/_/g, '/').replace(/-/g, '+'); // invalid chars
+    axios.post('http://localhost:5000/register', { data: image })
+    .then((res) => console.log(res))
+    .catch((err) => console.log("ERROR:",err));
     setSample(image);
   }
 
@@ -25,7 +29,7 @@ function App() {
   return (
     <div className="App">
       <button onClick={startCapture}>Capture</button>
-      <img src={`data:image/png;base64,${sample}`} alt="fingerprint" />
+      <img src={sample} alt="fingerprint" />
       <p>hola</p>
     </div>
   );
